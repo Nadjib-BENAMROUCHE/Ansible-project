@@ -1,0 +1,35 @@
+- name: Exemple de déploiement sur une machine distante
+  hosts: nadjib_EC2_apache
+  become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  tasks:
+
+    #___________________ Creation d'un fichier dans mon EC2 _____________________________
+    # - name: Créer un fichier texte
+    #   copy:
+    #     content: "Contenu du fichier texte.\n"
+    #     dest: "./ansible-test.txt"
+
+    #___________________ Creation d'un dossier dans mon EC2 _____________________________
+    - name: Création du répertoire /test-ansible
+      file:
+        path: ./amar-test-1
+        state: directory
+
+    #______________________ Utilisation de shell CMD ________________________________
+    - name: Créer le dossier test-repo avec la commande shell
+      ansible.builtin.shell:
+        cmd: "mkdir -p ./test-repo"
+        #cmd: "chmod 600 ./test-repo"
+        #cmd: "rm -r ./test-repo"     
+      become: true
+
+    #__________________________ Installation Apache _____________________________
+    # - name: Mise à jour des packages
+    #   apt:
+    #     update_cache: yes
+    # - name: Installation d'Apache2
+    #   apt:
+    #     name: apache2
+    #     state: present # ou "latest" pour la dernière version
+    # # - name: Activation du pare-feu (ufw)
+    # #   shell: ufw enable
