@@ -1,0 +1,2 @@
+# Variable pour l EC2 de Apache
+ansible_ssh_host: 54.155.179.24

@@ -1,0 +1,23 @@
+- name: Exemple de déploiement sur une machine distante
+  hosts: 
+    - apache_groupe
+  become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  roles:
+    - roles/apache-role
+
+####################################################### JENKINS PART #################################################################
+
+- hosts: jenkins_groupe
+  become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  #remote_user: ubuntu
+  roles:
+    - roles/jenkins-role
+
+################################################ TACHE POUR LE GROUPE ALL ####################################################
+- hosts: all
+  become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  tasks:
+    - name: Création du répertoire /test-ansible
+      file:
+        path: ./nadjib-test-001
+        state: directory

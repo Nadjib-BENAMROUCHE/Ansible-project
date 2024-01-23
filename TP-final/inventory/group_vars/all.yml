@@ -1,0 +1,2 @@
+# Group of groups - les variables partager entre les groupes 
+ansible_ssh_user: ubuntu

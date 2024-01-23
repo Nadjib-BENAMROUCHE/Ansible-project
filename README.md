@@ -1,3 +1,8 @@
-# Le nom de l'instance : EC2-nadjib-ansible 
-# Le fichier pem : ssh-key-ansible-nadjib.pem
 
+# Run Playbook 
+```
+cd TP-final
+
+ansible-playbook -i ./inventory/inventory.ini playbooks/main.yml -v
+
+```

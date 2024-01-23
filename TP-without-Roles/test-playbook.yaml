@@ -1,0 +1,105 @@
+- name: Exemple de déploiement sur une machine distante
+  hosts: nadjib_EC2_apache
+  become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  tasks:
+
+    #___________________ Creation d'un fichier dans mon EC2 _____________________________
+    # - name: Créer un fichier texte
+    #   copy:
+    #     content: "Contenu du fichier texte.\n"
+    #     dest: "./ansible-test.txt"
+
+    #___________________ Creation d'un dossier dans mon EC2 _____________________________
+    - name: Création du répertoire /test-ansible
+      file:
+        path: ./amar-test-1
+        state: directory
+
+    #______________________ Utilisation de shell CMD ________________________________
+    - name: Créer le dossier test-repo avec la commande shell
+      ansible.builtin.shell:
+        cmd: "mkdir -p ./test-repo"
+        #cmd: "chmod 600 ./test-repo"
+        #cmd: "rm -r ./test-repo"     
+      become: true
+
+    #__________________________ Installation Apache _____________________________
+    - name: Mise à jour des packages                  
+      apt:
+        update_cache: yes
+
+    - name: Installation d'Apache2                  
+      apt:
+        name: apache2
+        state: present # ou "latest" pour la dernière version
+
+    - name: Activer UFW (Uncomplicated Firewall)
+      ufw:
+        rule: allow
+        port: 80
+      become: true
+
+    - name: Démarrage du service Apache
+      service:
+        name: apache2
+        state: started
+      become: yes
+
+####################################################### JENKINS PART #################################################################
+
+  hosts: jenkins
+  become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  #remote_user: ubuntu
+  tasks:
+    - name: Download Jenkins keyring
+      shell: "sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key"
+    - name: Add Jenkins repository to sources.list.d
+      shell: "echo 'deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/' | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null"
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+
+  # hosts: jenkins
+  # become: true  # Exécutez les tâches avec les privilèges de superutilisateur (root)
+  # tasks:
+  #   #_______________ CREATION de fihier _____________
+  #     # - name: Créer un fichier texte
+  #     #   copy:
+  #     #     content: "My test.\n"
+  #     #     dest: "./jenkins-test.txt"
+
+  #     # ______________ INSTALLATION de Jenkins ________
+  #     - name: Ajouter la clé GPG Jenkins
+  #       shell: "wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -"
+  #     - name: Ajouter le dépôt Jenkins aux sources APT
+  #       shell: 'sudo sh -c "echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list"'
+  #     - name: Mettre à jour la liste des paquets
+  #       apt:
+  #         update_cache: yes
+  #     # - name: Installer Jenkins
+  #     #   apt:
+  #     #     name: jenkins
+  #     #     state: present
+  #     - name: Télécharger et ajouter la clé Jenkins keyring
+  #       shell: "sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian/jenkins.io-2023.key"
+  #     - name: Ajouter le dépôt Jenkins avec clé Jenkins keyring
+  #       shell: 'echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null'
+  #     - name: Mettre à jour la liste des paquets après ajout de la clé Jenkins keyring
+  #       apt:
+  #         update_cache: yes
+  #     # - name: Installer openjdk-11-jre-headless
+  #     #   apt:
+  #     #     name: openjdk-11-jre-headless
+  #     #     state: present
+  #     - name: Configurer les paquets en attente
+  #       command: "sudo dpkg --configure -a"
+  #     - name: Redémarrer le service Jenkins
+  #       systemd:
+  #         name: jenkins
+  #         state: restarted
+  #     ################################################

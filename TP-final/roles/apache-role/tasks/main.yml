@@ -1,0 +1,61 @@
+# tasks file for apache-role
+  - name: Mise à jour des packages                  
+    apt:
+      update_cache: yes
+
+  - name: Installation d'Apache2                  
+    apt:
+      name: apache2
+      state: present # ou "latest" pour la dernière version
+    
+  - name: Activer UFW (Uncomplicated Firewall)
+    ufw:
+      rule: allow
+      port: 80
+    become: true
+
+  # # ufw enable 
+  # - name: Activer UFW    # A faire dans la partie handlers 
+  #   command: ufw enable
+  #   become: true
+ 
+  - name: Démarrage du service Apache     # A faire dans la partie handlers 
+    service:
+      name: apache2
+      state: started
+    become: yes
+
+
+#___________________________________ Configuration Apache ____________________________________________
+
+  - name: Créer le répertoire /var/www/nadjib_html
+    file:
+      path: /var/www/nadjib_html
+      state: directory
+      mode: 0755
+
+  - name: Copier le template my_index.html.j2
+    template:
+      src: ../files/my_index.html.j2
+      dest: /var/www/nadjib_html/index.html
+      mode: 0644
+
+  - name: Copier le fichier de configuration mydomain.conf
+    copy:
+      src: ../files/mydomain.conf
+      dest: /etc/apache2/sites-available/nadjib.conf
+      mode: 0644
+
+  - name: Activer le site nadjib.conf
+    command: "sudo a2ensite nadjib.conf"
+    become: true
+
+  - name: Désactiver le site 000-default.conf
+    command: "sudo a2dissite 000-default.conf"
+    become: true
+
+  - name: Redémarrer Apache2
+    systemd:
+      name: apache2
+      state: restarted
+    become: true
